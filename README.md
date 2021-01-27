@@ -6,6 +6,7 @@ Topological Data Analysis of graphs.
 # Info
 
 To start:
+- Clone/download the repository.
 - Install the dependencies below.
 - Open 'graphTDA.Rproj' in Rstudio.
 - Build --> Clean and Rebuild.
