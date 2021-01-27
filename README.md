@@ -50,7 +50,7 @@ We provide the following tutorials to investigate the functionality of our code:
 
 # Dependencies
 
-most of these can be installed directly through the following command in R: install.packages("<package_name>") 
+Most of these can be installed directly through the following command in R: install.packages("<package_name>") 
 
 Package dependencies:
 - "igraph" (https://igraph.org/r/)
