@@ -1,5 +1,5 @@
 # The purpose of this tutorial is to show how to infer backbones in real-world cell trajectory data.
-# We recommend to go through the 'Basic_Backbone' and tutorial first.
+# We recommend to go through the 'Basic_Backbone' tutorial first.
 # We start by importing the necessary libraries.
 
 devtools::load_all() # load graphTDA

@@ -13,7 +13,7 @@ To start:
 
 # Tutorials
 
-We provide following tutorials to investigate the functionality of our code:
+We provide the following tutorials to investigate the functionality of our code:
 
 
 - Persistence.R:
@@ -38,7 +38,7 @@ We provide following tutorials to investigate the functionality of our code:
 - Cell_Trajectory_Inference.R:
 
   The purpose of this tutorial is to show how to infer backbones in real-world cell trajectory data.
-  We recommend to go through the 'Basic_Backbone' and tutorial first.
+  We recommend to go through the 'Basic_Backbone' tutorial first.
   
   
  - Topological_Signatures.R:
