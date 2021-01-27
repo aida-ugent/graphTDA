@@ -63,11 +63,11 @@ Package dependencies:
 - "randomcoloR" (https://cran.r-project.org/web/packages/randomcoloR/)
 
 Tutorial dependencies:
-- "ggplot2"
-- "latex2exp"
-- "gridExtra"
-- "ggpubr"
-- "dyndimred"
+- "ggplot2" (https://cran.r-project.org/web/packages/ggplot2/)
+- "latex2exp" (https://cran.r-project.org/web/packages/latex2exp/)
+- "gridExtra" (https://cran.r-project.org/web/packages/gridExtra/)
+- "ggpubr" (https://cran.r-project.org/web/packages/ggpubr/)
+- "dyndimred" (https://cran.r-project.org/web/packages/dyndimred/)
 
 
 # Contact
