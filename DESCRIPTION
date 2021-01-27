@@ -1,0 +1,27 @@
+Package: graphTDA
+Type: Package
+Title: Topological Data Analysis of graphs
+Version: 0.0.0.9000
+Authors@R: person("Robin", "Vandaele", email = "RObin.Vandaele@UGent.be", role = c("aut", "cre"))
+Description: Topological Data Analysis of graphs
+Depends: R (>= 3.5.0)
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.0.1
+Imports:
+  igraph,
+  spam,
+  FNN,
+  pdist,
+  dplyr,
+  TDA,
+  randomcoloR,
+  linkprediction
+Suggests:
+  ggplot2,
+  dyndimred,
+  latex2exp,
+  gridExtra,
+  devtools
+Remotes: -
