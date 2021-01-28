@@ -31,47 +31,70 @@ Hshape <- list(list(start=c(-1/2, 0), end=c(0, 0)),
 
 shapes <- list("I"=Ishape, "Y"=Yshape, "X"=Xshape, "H"=Hshape)
 
-# Before yhe models, we first construct their (ground-truth) topological signatures.
-# These will be derived as the persistence diagrams of the sublevel filtrations defined by the model's normalized centrality functions.
+# By connecting the points defined above by cocntinuous line segments, we obtain our continuous topological models.
+# However, all topological information, such as leaves and multifurcations, of this continuous model coincides with their analogs in their discrete graph counterparts.
+# Instead of connecting the points by a continuous segment in the plane, these graph counterparts are obtained by connecting them by an edge.
+# Furthermore, we will use the topological signatures obtained through the normalized centralities from these models.
+# For a given graph, these can be obtained by the 'normalized_centrality' function.
+# We construct these discrete graph representations and their normalized centralities below.
 
-trueGraphs <- lapply(shapes, function(shape){ # true discrete graph/tree-structured topological representations
+trueGraphs <- lapply(shapes, function(shape){
+  # Construct discrete graph representation of the continuous model
   G <- t(sapply(shape, function(shape) do.call("c", shape)))
   weight <- apply(G, 1, function(r) norm(r[1:2] - r[3:4], type="2"))
   G <- graph_from_data_frame(data.frame(from=(apply(matrix(G[,1:2], ncol=2), 1, function(r) paste(r[1], r[2]))),
                                         to=apply(matrix(G[,3:4], ncol=2), 1, function(r) paste(r[1], r[2]))),
                              directed=FALSE)
   E(G)$weight <- weight
+
+  # Compute normalized vertex centralities
   G$NC <- normalized_centrality(G)
   return(G)
 })
 
-trueDiagrams <- lapply(trueGraphs, function(G) graph_persistence(S=G, f=G$NC)) # true topological signatures
-names(trueDiagrams) <- names(shapes)
+# We can now look at a discrete graph representation and its normalized centralities for an example model.
+# Note that the following layout does not make use of the endpoints in the Euclidean plane defined above.
 
-# To illustrate the topologies, we will first uniformly sample from them without noise.
+example_shape <- "Y"
+plot(trueGraphs[[example_shape]], vertex.label=trueGraphs[[example_shape]]$NC, vertex.color=trueGraphs[[example_shape]]$NC)
+
+# From these graphs we will compute the true topological signatures of the continuous models.
+# However, these graphs do not really illustrate their continuous counterparts well.
+# Hence, to illustrate these continuous models, we will sample points them without noise.
+# Note that this is yet again a discrete set of points.
+# Their normalized centralities in the true continuous model can be obtained by linear interpolation over the end nodes in the graphs.
 
 npoints <- 600 # points per model, exact number of points may slightly differ due to rounding
-
 set.seed(42)
 cleanDataSets <- lapply(names(shapes), function(name){
   shape <- shapes[[name]]
   cleanData <- data.frame(x=numeric(), y=numeric(), NC=numeric())
+
+  # Calculate how much points are needed per branch to approximate a uniform sample
   pointsPerBranch <- sapply(shape, function(l) norm(l$start - l$end, type="2"))
   pointsPerBranch <- round(pointsPerBranch / sum(pointsPerBranch) * npoints)
+
+  # Iterate over the branches of the current model
   for(idx in 1:length(shape)){
+
+    # For each branch in the current model, sample proportionally to its length
     branch <- shape[[idx]]
     t <- runif(pointsPerBranch[[idx]])
     pointsOnBranchX <- t * branch$start[1] + (1 - t) * branch$end[1]
     pointsOnBranchY <- t * branch$start[2] + (1 - t) * branch$end[2]
+
+    # Calculate the true normalized centralities in the continuous model through linear interpolation using the discrete graph counterpart
     NC <- t * trueGraphs[[name]]$NC[paste(branch$start[1], branch$start[2])] +
       (1 - t) * trueGraphs[[name]]$NC[paste(branch$end[1], branch$end[2])]
+
+    # Concatenate the data for the current branch
     cleanData <- rbind(cleanData, data.frame(x=pointsOnBranchX, y=pointsOnBranchY, NC=NC))
   }
   return(cleanData)
 })
 names(cleanDataSets) <- names(shapes)
 
-# We can now visualize the clean data, and hence, the models, as well as the filtration defining functions, as follows
+# We can now illustrate the continuous models (or more precisely samples from them) with their true normalized centralities below.
 
 plotsOfCleanData <- lapply(names(cleanDataSets), function(name){
   ggplot(cleanDataSets[[name]], aes(x=x, y=y, col=NC)) +
@@ -86,7 +109,21 @@ plotsOfCleanData <- lapply(names(cleanDataSets), function(name){
 })
 ggpubr::ggarrange(plotlist=plotsOfCleanData, nrow=2, ncol=2)
 
-# From each model, we sample three noisy data sets, by adding random noise and rotations, and centering to (0, 0)
+# The topological signatures obtained through the normalized centrality from these continuous models coincided with those obtained from their discrete graph counterparts.
+# Hence, to compute these true topological signatures, we can use the 'graph_persistence' function, as shown below.
+
+trueDiagrams <- lapply(trueGraphs, function(G) graph_persistence(S=G, f=G$NC))
+names(trueDiagrams) <- names(shapes)
+
+# Let's take a look at the obtained persistence barcode for our previous example model.
+# Although the diagrams are more useful for mathematical comparisons, they can represent bars with multiplicity.
+
+TDA::plot.diagram(trueDiagrams[[example_shape]], main=paste(example_shape, "ground truth"), barcode=TRUE)
+
+# We observe that the number of persisting bars is consistent with how many leaves we have in our model.
+# This is because we computed sublevel persistence for the normalized centrality function.
+# In the rest of this tutorial, we will focus on how we can use this for topological comparison of empirical data.
+# For this, from each model, we sample three noisy data sets, by adding random noise and rotations, and centering to (0, 0)
 
 nDistortions <- 3
 sigma <- 0.005
@@ -102,7 +139,7 @@ noisyDataSets <- lapply(cleanDataSets, function(cleanData){
 })
 names(noisyDataSets) <- names(shapes)
 
-# We can visualize the noisy samples as follows
+# We can now visualize all noisy samples as follows.
 
 noisyLim <- c(min(unlist(noisyDataSets)), max(unlist(noisyDataSets)))
 plotsOfNoisyData <- lapply(1:length(noisyDataSets), function(idx1){
@@ -130,8 +167,24 @@ mstOfDataSets <- lapply(noisyDataSets, function(noisyDatasForShape){
   })
 })
 
+# As the edges of the MSTs may be difficult to visualize for smaller figure sizes, we first show one for a noisy sample of our previous example model.
+
+example_edges <- get_edges2D(noisyDataSets[[example_shape]][[1]], mstOfDataSets[[example_shape]][[1]])
+ggplot(noisyDataSets[[example_shape]][[1]][names(V(mstOfDataSets[[example_shape]][[1]])),], aes(x=x, y=y)) +
+  geom_segment(data=example_edges, aes(x=x1, y=y1, xend=x2, yend=y2), color="red", size=1) +
+  geom_point(size=1.25, col="black") +
+  geom_point(size=.75, aes(col=mstOfDataSets[[example_shape]][[1]]$NC)) +
+  ggtitle(paste(example_shape, "sample", 1)) +
+  scale_colour_gradientn(colours=topo.colors(7)) +
+  labs(col="Normalized Centrality") +
+  xlim(noisyLim) +
+  ylim(noisyLim) +
+  theme_bw() +
+  theme(plot.title=element_text(hjust = 0.5)) +
+  coord_fixed()
+
 # We can now plot all clean data as well as the MSTs with normalized centralities as follows.
-# Note that the edges of the MSTs may be difficult to visualize for smaller figure sizes.
+# The edges of the MSTs might not be visualized well this time due to smaller subfigure sizes.
 
 plotsOfMST <- lapply(1:length(noisyDataSets), function(idx1){
   lapply(1:length(noisyDataSets[[idx1]]), function(idx2){
@@ -153,8 +206,7 @@ plotsOfMST <- lapply(1:length(noisyDataSets), function(idx1){
 ggpubr::ggarrange(plotlist=do.call("c", lapply(1:length(shapes), function(idx) c(list(plotsOfCleanData[[idx]]), plotsOfMST[[idx]]))),
                   common.legend=TRUE, nrow=length(shapes), ncol=nDistortions + 1)
 
-# We now computed the topological signatures, i.e., the zero-dimensional persistence diagram, for each MST.
-# This through the sublevel filtrations defined by the normalized centrality functions.
+# We now compute the topological signatures, i.e., the zero-dimensional persistence diagram for the normalized centrality function, for each MST.
 
 diagramsOfMST <- list()
 progress <- 0
@@ -181,6 +233,9 @@ for(idx1 in 1:length(noisyDataSets)){
 }; opt
 
 # To compare the different topological signatures, we compute the bottleneck distances between them.
+# Note that computing bottleneck distances may take some time when a lot of points are included in the diagrams.
+# This is especially the case in our current framework, where we use MSTs.
+# However, as we are only working with a small number of datasets, this is currently not an issue.
 
 pairwiseBottleNecksMST <- matrix(numeric((length(noisyDataSets)*(length(noisyDataSets[[1]]) + 1))^2),
                                  nrow=length(noisyDataSets)*(length(noisyDataSets[[1]]) + 1))
@@ -199,7 +254,7 @@ for(idx1 in 1:(nrow(pairwiseBottleNecksMST) -  1)){
   }
 }
 
-# We visualize the bottleneck distances through a heatmap of the matrix, as follows.
+# We can now visualize the bottleneck distances through a heatmap of the matrix, as follows.
 
 ggplot(reshape2::melt(pairwiseBottleNecksMST), aes(Var1, Var2, fill=value)) +
   geom_raster() +
@@ -214,6 +269,8 @@ ggplot(reshape2::melt(pairwiseBottleNecksMST), aes(Var1, Var2, fill=value)) +
   coord_fixed()
 
 # Finally, we can also chart the data sets through a MDS plot of this distance matrix.
+# This can be seen as a placing of data sets in the plane that separates them according to their topological (dis)similarity.
+# We will also mark the true models/topological signatures by black borders.
 
 fitBottleNecksMST <- data.frame(cmdscale(pairwiseBottleNecksMST, k=2))
 fitBottleNecksMST[,3] <- rep(names(noisyDataSets), each=length(noisyDataSets[[1]]) + 1)
