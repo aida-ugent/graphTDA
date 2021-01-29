@@ -6,7 +6,7 @@ devtools::load_all() # load graphTDA
 library("ggplot2") # plotting
 
 # We load and plot the toy data set that will be used for this example.
-# It corresponds to our beloved friend Pikachu (please be kind, it took me quite some attempts to 'draw').
+# It corresponds to our beloved friend Pikachu (please be kind, it took me quite some attempts to 'draw' this data set).
 
 df <- read.table("data/Pikachu.csv", header=FALSE, sep=",")
 colnames(df) <- c("x", "y")
@@ -35,12 +35,12 @@ ggplot(df[names(V(BCB$G)),], aes(x=x, y=y)) +
   theme_bw() +
   coord_fixed()
 
-# Note that their are multiple connected components in the constructed graph, and hence, in the backbone.
+# Note that there are multiple connected components in the constructed graph, and hence, in the backbone.
 # We can identify which nodes belong to which connected components through the list entry 'membership'.
 
-BCB$membership
+BCB$membership[1:10]
 
-# View cost curves for CLOF are now identified per connected component.
+# Cost curves for CLOF are now identified per connected component.
 # We can visualize these as follows.
 
 ggplot(BCB$cost, aes(x=leaves, y=cost)) +
@@ -52,9 +52,11 @@ ggplot(BCB$cost, aes(x=leaves, y=cost)) +
 
 # Again, we visually observe that Pikachu's backbone might be improved by adding additional leaves.
 # For multiple components, we can proceed in various ways.
-# The first is to specify the total number of leaves for solving CLOF, summed over all components.
-# Note that this requires additional optimization over the stored solutions per component.
-# For this, we proceed as follows.
+# Using the 'get_new_leaves' function, CLOF will not be needed to resolved for this.
+# Hower this does require some additional optimization over the stored solutions per component.
+# A dominant term in the order of computational time for this is l^B0, where l is the number of leaves in the pine and B0 is the number of connected components.
+# Although exponential in the number of connected components, we observe that the additional computation cost is often neglible in practice when prepruning the pine, as then both l and B0 tend to be small.
+# We proceed as follows.
 
 BCB <- get_new_leaves(BCB, leaves=16)
 EBCB <- get_edges2D(df, BCB$B)
@@ -70,11 +72,11 @@ ggplot(df[names(V(BCB$G)),], aes(x=x, y=y)) +
   coord_fixed()
 
 # We observe that the backbone extends much better around the contour of Pikachu's face.
-# Still, Pikachu's mouth is left untouched, and he might not be able to smell pecha berries.
+# Still, Pikachu's mouth is left untouched, and he might not be able to smell those taste pecha berries any longer.
 # This is because the betweenness centrality is significantly higher in larger connected components.
-# For this reason, global optimization will be biased towards larger components.
+# For this reason, global optimization (over the components) will be biased towards larger components.
 # We can overcome this by standardizing the function for solving CLOF per component.
-# Again, this requires additional optimization, and can be done as follows.
+# Again, this requires the additional optimization as above, which can be done as follows.
 
 BCB <- get_new_leaves(BCB, leaves=16, stdize=TRUE)
 EBCB <- get_edges2D(df, BCB$B)
@@ -114,11 +116,14 @@ ggplot(df[names(V(BCB$G)),], aes(x=x, y=y)) +
 # Apart from one thing... There are still some gaps in Pikachu's mouth, cheeks, ears, and eyes.
 # As our method is designed to infer forest-structured backbones, it is uncabable of directly including cycles.
 # However, persistent homology through the distances defined by the original graph, restricted to the backbone, allows one to identify these gaps.
-# The following function adds an additional list entry 'diagram' to our object that visualizes the resulting persistence diagram.
+# The following function adds an additional list entry 'diagram' to our object for visualizing this persistence diagram.
 
 BCB <- check_for_cycles(BCB)
+BCB <- check_for_cycles(BCB)
+op <- par(mar = c(3.25, 3.25, 1, 1))
 plot.diagram(BCB$diagram, diagLim=c(0, 20))
-legend(17.5, 5, legend=c("H0", "H1"), col=c("black", "red"), pch=c(19, 2), pt.lwd=2, box.lty=0)
+legend(17.5, 5, legend=c("H0", "H1"), col=c("black", "red"),
+       pch=c(19, 2), pt.lwd=2, box.lty=0); par(op)
 
 # The persistence diagram shows 8 'persisting' cycles (red H1 triangles).
 # This is consistent with the 8 missing gaps: 2 for Pikachu's mouth, 2 for his cheeks, 2 for his ears, and 2 for his eyes.
@@ -152,4 +157,4 @@ ggplot(df[names(V(BCB$G)),], aes(x=x, y=y)) +
 # Note that the 'representative cycles' are not necessarily subgraphs of the original graph.
 # Hence how to effectively lift/add these to the backbone is open to further research.
 # Furthermore, the current used R implementation of persistent homology tends to lead to memory issues quickly.
-# We therefore suggest future incorporation of more efficient implementations for this purpose.
+# We therefore suggest future incorporation of more efficient implementations to accomodate for this.

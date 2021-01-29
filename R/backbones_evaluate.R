@@ -1,8 +1,8 @@
 #' Evaluate one or multiple backbones according to various metrics.
 #'
-#' @param BL A backbone or list of backbone objects.
+#' @param BL A backbone or list of backbone or igraph objects.
 #' @param G  (Optional) The original graph G, assumed to be equal for all backbones.
-#'           I
+#'           Must be provided of no object in BL contains G.
 #'           Standard is NULL.
 #'
 #' @return   A data frame with one row per backbone, evaluating it according to the following metrics:
@@ -16,13 +16,10 @@
 backbones_evaluate <- function(BL, G=NULL)
 {
   # Preliminary checks
-  if(is.null(G)){
-    for(backbone in BL){
-      if(!is.null(backbone$G)){
-        G <- backbone$G
-        break
-      }
-    }
+  for(idx in 1:length(BL)){
+    if(!is.null(BL[[idx]]$G) & is.null(G)) G <- BL[[idx]]$G
+    if(is_igraph(BL[[idx]])) BL[[idx]] <- list(B=BL[[idx]])
+    else if(is.null(BL[[idx]]$B)) stop("List must consist of either backbone or igraph objects.")
   }
   if(is.null(G)) stop("No backbone contains original graph G. Please provide G.")
 

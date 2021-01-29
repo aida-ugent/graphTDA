@@ -116,7 +116,6 @@ backbone <- function(X,
   if(any(is.na(leaves))){
     backbone <- get_new_leaves(backbone, leaves=get_elbow(backbone$cost)[,1], G=if(is.null(G)) X else G, assign=FALSE, stdize=stdize)
     new <- Sys.time() - old
-    print(paste("Backbone obtained in", round(new, 3), attr(new, "units")))
   }
   else if(length(leaves) == 1 & length(levels(factor(backbone$membership))) > 1){
     backbone <- get_new_leaves(backbone, leaves=leaves, G=if(is.null(G)) X else G, assign=FALSE, stdize=stdize)

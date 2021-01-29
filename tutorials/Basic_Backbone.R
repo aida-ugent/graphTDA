@@ -15,10 +15,10 @@ ggplot(df, aes(x=x, y=y)) +
 # The most important function for identifying backbones in graphs is, as you might guess, the 'backbone' function.
 # Let's illustrate its functionality by computing a backbone from a (Vietoris-)Rips graph constructed from the point cloud.
 
-BCB <- backbone(df, # point cloud data.frame/matrix or dist object to construct proximity graph, or a given graph
+BCB <- backbone(df, # point cloud data.frame/matrix, dist object, or a given graph
                 type="rips", # type of proximity graph to construct (standard is knn)
                 eps=10, # defining parameter for the rips graph
-                assign=TRUE) # whether to assign points/nodes to branches in the backbone, as clarified below
+                assign=TRUE) # whether to assign nodes to branches in the backbone, clarified below
 
 # The constructed proximity graph is stored in the list entry 'G'.
 # As no vertex-valued function was provided to compute the pine, the boundary coefficients were computed and stored in the list entry 'f'.
@@ -66,8 +66,8 @@ ggplot(df[names(V(BCB$G)),], aes(x=x, y=y)) +
   coord_fixed() +
   theme_bw()
 
-# Since no number of leaves was provided, an 'elbow' estimate was performed on the cost curve obtained by optimizing CLOF.
-# Although a tree with one leaf is technically not possible, we store the cost of the first longest branch to track the evolution of the cost.
+# Since no number of leaves was provided, an 'elbow' estimate was performed on the cost curve obtained by solving CLOF.
+# Although a tree with one leaf is technically not possible, we store the cost of the first 'optimal branch' to track the evolution of the cost.
 # This branch can be identified whenever three leaves are present in the backbone.
 # For 0 leaves, the cost function marks the maximal cost of a node in the graph if CLOF is solved for a vertex-valued function.
 # This is the case here, as the standard setting is to use the betweenness centrality of the pine for solving CLOF.
@@ -85,7 +85,7 @@ ggplot(BCB$cost, aes(x=leaves, y=cost)) +
 
 # We see a harsh decrease in the added cost after '1 leaf'.
 # Nevertheless, from visual inspection of the data we note that a backbone with three leaves may be more suitable.
-# We can increase number of leaves up until the solution obtained from the last CLOF iteration, here 8-1 = 7.
+# We can increase the number of leaves up until the solution obtained from the last CLOF iteration, here 8-1 = 7.
 # Hence, to extract the solution for three leaves (which requires no additional computation), we can proceed as follows.
 
 BCB <- get_new_leaves(BCB, leaves=3)
@@ -106,7 +106,7 @@ ggplot(df[names(V(BCB$G)),], aes(x=x, y=y)) +
 # As mentioned, CLOF is standard solved for the betweenness centrality as a vertex-valued cost on the pine.
 # Nevertheless, we can use any nonnegative vertex-valued function for this purpose, such as the vertex degree.
 # Furthermore, since the proximity graph and boundary coefficients were already computed, we can immediately pass them as arguments to avoid unnecessary recomputation.
-# As such, we can conduct the backbone pipeline a second time for a different CLOF optimizer but the same graph/pine as follows.
+# As such, we can conduct the backbone pipeline a second time for a different CLOF optimization function but the same graph/pine as follows.
 
 CLOF_vcost <- function(G) return(degree(G))
 BCB2 <- backbone(BCB$G, f=BCB$f, leaves=3, CLOF_vcost=CLOF_vcost, assign=TRUE)
@@ -124,11 +124,11 @@ ggplot(df[names(V(BCB$G)),], aes(x=x, y=y)) +
   coord_fixed() +
   theme_bw()
 
-# Note that we now immediately that three leaves should be extracted, and no estimate is performed.
+# Note that we now immediately specified that three leaves should be extracted, and no estimate is performed.
 # We can also use an edge-valued function to solve CLOF, such as the edge-weights.
 # However, note that in the weighted case, this function is non-constant on leaves.
 # Hence, no prepruning will be applied, significantly increasing the potential number of leaves and computational cost.
-# To accomodate for this, we can specify a maximal allowed number of leaves as follows.
+# To (partially) accomodate for this, we can specify the exact (as above) or a maximal (as follows) allowed number of leaves.
 
 CLOF_ecost <- function(G) return(E(G)$weight)
 BCB3 <- backbone(BCB$G, f=BCB$f, max_leaves=5, CLOF_ecost=CLOF_ecost, assign=TRUE)
@@ -146,7 +146,12 @@ ggplot(df[names(V(BCB$G)),], aes(x=x, y=y)) +
   coord_fixed() +
   theme_bw()
 
-# As no exact number of leaves was specified, we see that this time the elbow estimate does lead to three leaves.
+# The specified max number of leaves (5) was below the total number of leaves (7) in the prepruned pine above.
+# Nevertheless, we still observe that it still takes relatively much longer to obtain the backbone.
+# This is because solving CLOF starts by computing the distance of all nodes in the pine to all leaves in the pine.
+# Both these numbers tend do decrease drastically when prepruning the pine, showing the usefulness of functions constant on leaves in conjunnction with CLOF.
+# Furthermore, as no exact number of leaves was specified, we see that this time the elbow estimate does lead to three leaves.
+# However, we observe that these are chosen rather randomly among the noise, again showing the usefulness of prepruning the pine.
 # Finally, now that we have three differently obtained backbones, we can evaluate and compare them as follows.
 
 backbones_evaluate(list(BCB, BCB2, BCB3))

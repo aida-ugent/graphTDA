@@ -2,6 +2,7 @@
 
 Topological Data Analysis of graphs. 
 
+Main paper this repository is based on: https://jmlr.org/papers/v21/19-1032.html
 
 # Info
 
@@ -11,6 +12,11 @@ To start:
 - Open 'graphTDA.Rproj' in Rstudio.
 - Build --> Clean and Rebuild.
 - Open a tutorial from Rstudio and you are good to go!
+
+Or:
+- You can explore the results of the scripts immideately in github from the 'tutorials/R_Markdown' folder.
+
+For deeper exploration, you can find all function and their parameter definitions in the 'R' folder.
 
 # Tutorials
 

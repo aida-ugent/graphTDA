@@ -7,14 +7,14 @@ library("ggplot2") # plotting
 library("dyndimred") # dimensionality reductions for cell trajectory data
 
 # The data we use is obtained from https://zenodo.org/record/1443566.
-# It is in an rds file format (specifically designed for R).
+# It is in an R data format 'rds'.
 # It can be read as follows.
 
 cells_info <- readRDS("data/Cells")
 names(cells_info)
 
-# We see that the data contains a lot of info about the cells, much of which we will not be using.
-# The important objects for us is the expression data, the model, and the cell grouping.
+# We see that the data contains a lot of information about the cells, much of which we will not be using.
+# The important objects for us are the expression data, the model, and the cell grouping.
 # We can visualize the underlying graph model on the cell groupings as follows.
 
 G <- graph_from_data_frame(cells_info$milestone_network)
@@ -24,6 +24,7 @@ cols <- c("H1975"=rgb(250, 127, 113, maxColorValue = 255),
           "H2228"=rgb(254, 254, 178, maxColorValue = 255),
           "H1975,H2228,HCC827"=rgb(252, 179, 97, maxColorValue = 255))
 V(G)$color <- cols
+set.seed(42)
 op <- par(mar = c(0, 0, 0, 0))
 plot(G, vertex.shape="rectangle", vertex.label.cex=1, vertex.size=c(75, 75, 75, 150),
      edge.arrow.size=0.25, edge.color="black"); par(op)
@@ -34,9 +35,8 @@ dim(cells_info$expression)
 
 # We see that the data is high(1770)-dimensional.
 # We can hence not straightforwardly visualize the data without a dimensionality reduction.
-# For this, we will use a diffusion embedding on 3 components, and use the first two for visualization.
+# For this, we will use a diffusion embedding on three components, and use the first two for visualization.
 
-set.seed(42)
 fit <- data.frame(dimred(cells_info$expression, method="dm_diffusionmap", ndim=3))
 colnames(fit)[1:2] <- c("x", "y")
 
@@ -97,4 +97,4 @@ ggplot(fit[V(BCB$G)$name,], aes(x=x, y=y)) +
   theme_bw()
 
 # We see that all three of the kNN graph, BC-pine, and backbone, are now much more representative for the ground-truth model.
-# Furthermore, as they were not specified, the elbow estimator correctly inferred three leaves.
+# Furthermore, as this number was not specified, the elbow estimator correctly inferred three leaves.
