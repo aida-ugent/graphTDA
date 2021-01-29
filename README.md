@@ -23,36 +23,31 @@ For deeper exploration, you can find all function and their parameter definition
 We provide the following tutorials to investigate the functionality of our code:
 
 
-- Persistence.R:
+- **Persistence.R:** 
+    The purpose of this tutorial is to introduce persistent homology. 
+    The code can also be easily adapted to explain the method through custom point cloud data, e.g., for in academic papers.
+    Note that is a very brief introduction to how and what we can compute with persistent homology in R.
+    It does not serve as a replacement of any formal introduction to persistent homology.
+  
+  
+- **Basic_Backbone.R:** 
+    The purpose of this tutorial is to show the basic functionality of the backbone function.
+  
+  
+- **Disconnected_with_Cycles.R:** 
+    The purpose of this tutorial is to show how to infer backbones in disconnected graphs, and how to identify 'gaps' in the backbone.
+    We recommend to go through the 'Basic_Backbone' and 'Persistence' tutorials first.
+  
+  
+- **Cell_Trajectory_Inference.R:** 
+    The purpose of this tutorial is to show how to infer backbones in real-world cell trajectory data.
+    We recommend to go through the 'Basic_Backbone' tutorial first.
 
-  The purpose of this tutorial is to introduce persistent homology. 
-  The code can also be easily adapted to explain the method through custom point cloud data, e.g., for in academic papers.
-  Note that is a very brief introduction to how and what we can compute with persistent homology in R.
-  It does not serve as a replacement of any formal introduction to persistent homology.
   
-  
-- Basic_Backbone.R:
-
-  The purpose of this tutorial is to show the basic functionality of the backbone function.
-  
-  
-- Disconnected_with_Cycles.R:
-
-  The purpose of this tutorial is to show how to infer backbones in disconnected graphs, and how to identify 'gaps' in the backbone.
-  We recommend to go through the 'Basic_Backbone' and 'Persistence' tutorials first.
-  
-  
-- Cell_Trajectory_Inference.R:
-
-  The purpose of this tutorial is to show how to infer backbones in real-world cell trajectory data.
-  We recommend to go through the 'Basic_Backbone' tutorial first.
-  
-  
- - Topological_Signatures.R:
-
-  The purpose of this tutorial is to show how we can compute and compare topological signatures of graphs in R.
-  This is mostly performed through the TDA library in R.
-  However, we provide code to modify igraph objects to be compatible with this library.
+- **Topological_Signatures.R:**  
+    The purpose of this tutorial is to show how we can compute and compare topological signatures of graphs in R.
+    This is mostly performed through the TDA library in R.
+    However, we provide code to modify igraph objects to be compatible with this library.
 
 
 # Dependencies
