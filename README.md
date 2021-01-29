@@ -16,7 +16,7 @@ To start:
 Or:
 - You can explore the results of the scripts immediately in github from the 'tutorials/R_Markdown' folder.
 
-For deeper exploration, you can find all function and their parameter definitions in the 'R' folder.
+For deeper exploration, you can find all functions and their parameter definitions in the 'R' folder.
 
 # Tutorials
 
