@@ -39,12 +39,12 @@ We provide the following tutorials to investigate the functionality of our code:
     We recommend to go through the 'Basic_Backbone' and 'Persistence' tutorials first.
   
   
-- **Cell_Trajectory_Inference.R:** 
+- **Cell_Trajectory_Inference.R:**
     The purpose of this tutorial is to show how to infer backbones in real-world cell trajectory data.
     We recommend to go through the 'Basic_Backbone' tutorial first.
 
   
-- **Topological_Signatures.R:**  
+- **Topological_Signatures.R:**
     The purpose of this tutorial is to show how we can compute and compare topological signatures of graphs in R.
     This is mostly performed through the TDA library in R.
     However, we provide code to modify igraph objects to be compatible with this library.
