@@ -14,7 +14,7 @@ To start:
 - Open a tutorial from Rstudio and you are good to go!
 
 Or:
-- You can explore the results of the scripts immideately in github from the 'tutorials/R_Markdown' folder.
+- You can explore the results of the scripts immediately in github from the 'tutorials/R_Markdown' folder.
 
 For deeper exploration, you can find all function and their parameter definitions in the 'R' folder.
 
