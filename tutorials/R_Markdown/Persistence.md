@@ -53,24 +53,31 @@ for(idx in 1:length(epsilons)){
   this_simplices_I <- which(filtration$values <= epsilons[idx] & 
                               filtration$values > max(epsilons[idx - 1], 0))
 
-  # Determine new edges for this complex
-  this_edges_I <- which(sapply(filtration$cmplx[this_simplices_I], function(s) length(s) == 2))
-  this_edges <- matrix(do.call("rbind", filtration$cmplx[this_simplices_I[this_edges_I]]), ncol=2)
-  this_edges <- data.frame(cbind(df[this_edges[,1],], df[this_edges[,2],]))
-  colnames(this_edges) <- c("x1", "y1", "x2", "y2")
+  # Determine new simplices for this complex
+  this_simplices_I <- which(filtration$values <= epsilons[idx] &
+                              filtration$values > max(epsilons[idx - 1], 0))
 
-  # Determine new triangles for this complex
-  this_triangles_I <- which(sapply(filtration$cmplx[this_simplices_I], function(s) length(s) == 3))
-  this_triangles_vertex_I <- unlist(filtration$cmplx[this_simplices_I[this_triangles_I]])
-  if(length(this_triangles_I) > 0){
-    new_triangles_grouping <- rep((nrow(triangles) / 3 + 1):
-                                    (nrow(triangles) / 3 + length(this_triangles_I)), each=3)
+  # Add new simplices to the the plot, if any
+  if (length(this_simplices_I) > 0){
+    
+    # Determine and add new edges for this complex
+    this_edges_I <- which(sapply(filtration$cmplx[this_simplices_I], function(s) length(s) == 2))
+    if(length(this_edges_I) > 0){
+      this_edges <- matrix(do.call("rbind", filtration$cmplx[this_simplices_I[this_edges_I]]), ncol=2)
+      this_edges <- data.frame(cbind(df[this_edges[,1],], df[this_edges[,2],]))
+      colnames(this_edges) <- c("x1", "y1", "x2", "y2")
+      edges <- rbind(edges, this_edges)
+    }
+    
+    # Determine and add new triangles for this complex
+    this_triangles_I <- which(sapply(filtration$cmplx[this_simplices_I], function(s) length(s) == 3))
+    if(length(this_triangles_I) > 0){
+      this_triangles_vertex_I <- unlist(filtration$cmplx[this_simplices_I[this_triangles_I]])
+      new_triangles_grouping <- rep((nrow(triangles) / 3 + 1):
+                                      (nrow(triangles) / 3 + length(this_triangles_I)), each=3)
+      triangles <- rbind(triangles, cbind(id=new_triangles_grouping, df[this_triangles_vertex_I,]))
+    }
   }
-  else new_triangles_grouping <- integer()
-
-  # Add new edges and triangles to the visualization
-  edges <- rbind(edges, this_edges)
-  triangles <- rbind(triangles, cbind(id=new_triangles_grouping, df[this_triangles_vertex_I,]))
 
   # Plot the simplicial complex
   simpPlots[[length(simpPlots) + 1]] <- ggplot(df, aes(x=x, y=y)) +
