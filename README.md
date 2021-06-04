@@ -2,7 +2,9 @@
 
 Topological Data Analysis of graphs. 
 
-Main paper this repository is based on: https://jmlr.org/papers/v21/19-1032.html
+Main papers this repository is based on: 
+- https://jmlr.org/papers/v21/19-1032.html (backbone inference)
+- https://www.sciencedirect.com/science/article/pii/S0167865521001306?via%3Dihub (topological signatures through graph approximations)
 
 # Info
 
